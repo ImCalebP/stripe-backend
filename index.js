@@ -1,9 +1,12 @@
+
+
 // index.js
 const express = require('express');
 const cors = require('cors');
 const Stripe = require('stripe');
 
-// Replace this with your actual Stripe *TEST* secret key
+// Replace with your actual Stripe *TEST* secret key
+// Make sure you have email receipts enabled in Stripe Dashboard
 const stripe = new Stripe('sk_test_51PHHoTP228nQNkILgJFAVAsczhlCz1sSPLX88CypK2Jlig9Zm2wNU3X2L9YKLXKGk7KbvDnYXC5Qn0epIWSNgcqz00CWkx8wsc');
 
 const app = express();
@@ -18,18 +21,20 @@ app.get('/', (req, res) => {
 // Create PaymentIntent endpoint
 app.post('/create-payment-intent', async (req, res) => {
   try {
-    // Extract data from body
-    // e.g. { "amount":1000, "currency":"usd" }
-    const { amount, currency } = req.body;
+    // Expect e.g. { "amount": 250, "currency": "cad", "email": "user@example.com" }
+    const { amount, currency, email } = req.body;
 
     // Create PaymentIntent with Stripe
+    // By providing 'receipt_email', Stripe automatically emails a receipt
+    // when the payment succeeds (assuming "Email customers for successful payments" is on).
     const paymentIntent = await stripe.paymentIntents.create({
       amount,
       currency,
       payment_method_types: ['card'],
+      receipt_email: email, // <— Add user’s email here
     });
 
-    // Send client_secret to client
+    // Return the clientSecret to Flutter
     res.send({
       clientSecret: paymentIntent.client_secret,
     });
@@ -41,7 +46,7 @@ app.post('/create-payment-intent', async (req, res) => {
   }
 });
 
-// Start server locally on port 3000
+// Start server
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
