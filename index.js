@@ -7,7 +7,8 @@ const Stripe = require('stripe');
 
 // Replace with your actual Stripe *TEST* secret key
 // Make sure you have email receipts enabled in Stripe Dashboard
-const stripe = new Stripe('sk_test_51PHHoTP228nQNkILgJFAVAsczhlCz1sSPLX88CypK2Jlig9Zm2wNU3X2L9YKLXKGk7KbvDnYXC5Qn0epIWSNgcqz00CWkx8wsc');
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
 
 const app = express();
 app.use(express.json());
